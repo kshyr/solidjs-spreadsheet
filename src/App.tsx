@@ -32,7 +32,7 @@ const Grid: Component = () => {
   const rowVirtualizer = createVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef,
-    estimateSize: () => 35,
+    estimateSize: () => 40,
     overscan: 10,
   });
 
@@ -54,6 +54,12 @@ const Grid: Component = () => {
     },
   ]);
 
+  const handleEnter = (e) => {
+    if (e.key === "Enter") {
+      e.currentTarget.blur();
+    }
+  };
+
   return (
     <div ref={parentRef} class="h-full w-full overflow-auto">
       <div
@@ -68,7 +74,10 @@ const Grid: Component = () => {
             <For each={columnVirtualizer.getVirtualItems()}>
               {(virtualColumn) => (
                 <div
-                  class="absolute top-0 left-0 border flex justify-center items-center"
+                  contenteditable
+                  onblur={(e) => (e.target.scrollLeft = 0)}
+                  onkeydown={(e) => handleEnter(e)}
+                  class="absolute top-0 left-0 pl-1 border flex items-center overflow-auto whitespace-nowrap"
                   style={{
                     height: `${virtualRow.size}px`,
                     width: `${virtualColumn.size}px`,
