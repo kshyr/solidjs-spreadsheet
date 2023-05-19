@@ -38,7 +38,7 @@ const Grid: Component = () => {
 
   const columnVirtualizer = createVirtualizer({
     horizontal: true,
-    count: 15,
+    count: colCount,
     getScrollElement: () => parentRef,
     estimateSize: () => 100,
   });
@@ -75,7 +75,8 @@ const Grid: Component = () => {
                     transform: `translateX(${virtualColumn.start}px) translateY(${virtualRow.start}px)`,
                   }}
                 >
-                  Cell {virtualRow.index}, {virtualColumn.index}
+                  {letters()[virtualColumn.index]}
+                  {virtualRow.index + 1}
                 </div>
               )}
             </For>
