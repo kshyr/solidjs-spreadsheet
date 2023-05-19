@@ -17,6 +17,7 @@
     "vite-plugin-solid": "^2.5.0"
   },
   "dependencies": {
+    "@tanstack/solid-virtual": "3.0.0-beta.54",
     "daisyui": "^2.51.6",
     "solid-js": "^1.6.10"
   }
