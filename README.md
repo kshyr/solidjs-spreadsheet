@@ -8,5 +8,8 @@ to ultimately produce similar to Excel's workflow feel.
 #### Todo:
 
 - [x] initialize virtualized grid
-- [ ] set/get cells
-- [ ] add base for formulas (`=` to assign value of another cell with `$`)
+- [x] set/get cells
+- [x] add base for formulas (`=` to assign value of another cell - `=A1`)
+- [x] reactive `=`
+- [ ] display columns and rows indexes, duh
+- [ ] very basic import/export

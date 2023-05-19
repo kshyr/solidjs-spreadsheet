@@ -1,13 +1,15 @@
 import { Component, createSignal } from "solid-js";
 import { createMemo, For, createEffect } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 
 // grid size (n x n)
 
+type CellValue = string | null;
+
 type Cell = {
   id: string;
-  value?: string | number;
+  value: CellValue;
 };
 
 const Cell: Component = () => {
@@ -19,7 +21,7 @@ type GridProps = {
 };
 
 const Grid: Component = () => {
-  const rowCount = 10000;
+  const rowCount = 100;
   const colCount = 26;
   let parentRef: HTMLDivElement | undefined;
 
@@ -28,6 +30,17 @@ const Grid: Component = () => {
       String.fromCharCode(i + 65)
     );
   });
+
+  const initCells = Array.from(Array(rowCount), (_, row) =>
+    Array.from(
+      Array(colCount),
+      (_, col) =>
+      ({
+        id: String.fromCharCode(65 + row) + (col + 1),
+        value: null,
+      } as Cell)
+    )
+  );
 
   const rowVirtualizer = createVirtualizer({
     count: rowCount,
@@ -43,21 +56,46 @@ const Grid: Component = () => {
     estimateSize: () => 100,
   });
 
-  const [cells, setCells] = createStore<Cell[]>([
-    {
-      id: "A1",
-      value: 32,
-    },
-    {
-      id: "A2",
-      value: 64,
-    },
-  ]);
+  const [cells, setCells] = createStore<Cell[][]>(initCells);
 
   const handleEnter = (e) => {
     if (e.key === "Enter") {
       e.currentTarget.blur();
     }
+  };
+
+  const handleBlur = (e, row: number, col: number) => {
+    e.target.scrollLeft = 0;
+    const updateValue = e.target.textContent;
+    e.target.textContent = renderCellValue(cells[row][col]?.value);
+
+    updateCell(row, col, updateValue);
+  };
+
+  const updateCell = (row: number, col: number, value: CellValue) => {
+    setCells(
+      produce((cell) => {
+        cell[row][col].value = value;
+      })
+    );
+  };
+
+  const renderCellValue = (value: CellValue) => {
+    if (!value) return "";
+    let renderValue: string;
+
+    if (value.startsWith("=")) {
+      const cellId = value.split("=")[1];
+      const row = parseInt(cellId.charAt(1)) - 1;
+      const col = parseInt(
+        (cellId.toLowerCase().charCodeAt(0) - 97).toString()
+      );
+      renderValue = cells[row][col].value;
+    } else {
+      renderValue = value;
+    }
+
+    return renderValue;
   };
 
   return (
@@ -75,8 +113,14 @@ const Grid: Component = () => {
               {(virtualColumn) => (
                 <div
                   contenteditable
-                  onblur={(e) => (e.target.scrollLeft = 0)}
+                  onblur={(e) => {
+                    handleBlur(e, virtualRow.index, virtualColumn.index);
+                  }}
                   onkeydown={(e) => handleEnter(e)}
+                  onfocus={(e) =>
+                  (e.target.textContent =
+                    cells[virtualRow.index][virtualColumn.index]?.value)
+                  }
                   class="absolute top-0 left-0 pl-1 border flex items-center overflow-auto whitespace-nowrap"
                   style={{
                     height: `${virtualRow.size}px`,
@@ -84,8 +128,9 @@ const Grid: Component = () => {
                     transform: `translateX(${virtualColumn.start}px) translateY(${virtualRow.start}px)`,
                   }}
                 >
-                  {letters()[virtualColumn.index]}
-                  {virtualRow.index + 1}
+                  {renderCellValue(
+                    cells[virtualRow.index][virtualColumn.index]?.value
+                  )}
                 </div>
               )}
             </For>
@@ -101,7 +146,7 @@ const App: Component = () => {
     <div class="h-screen flex justify-center items-center ">
       <div class="mockup-window bg-base-300 w-3/5 h-1/2">
         <div class="px-2 pb-9 h-full">
-          <div class="bg-base-200 rounded-xl h-full">
+          <div class="bg-base-200 rounded-xl h-full p-4">
             <Grid />
           </div>
         </div>
