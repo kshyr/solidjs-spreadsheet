@@ -57,6 +57,9 @@ const Grid: Component = () => {
   });
 
   const [cells, setCells] = createStore<Cell[][]>(initCells);
+  const [selectedCell, setSelectedCell] = createSignal<HTMLElement | null>(
+    null
+  );
 
   const handleEnter = (e) => {
     if (e.key === "Enter") {
@@ -120,31 +123,62 @@ const Grid: Component = () => {
       >
         <For each={rowVirtualizer.getVirtualItems()}>
           {(virtualRow) => (
-            <For each={columnVirtualizer.getVirtualItems()}>
-              {(virtualColumn) => (
-                <div
-                  contenteditable
-                  onblur={(e) => {
-                    handleBlur(e, virtualRow.index, virtualColumn.index);
-                  }}
-                  onkeydown={(e) => handleEnter(e)}
-                  onfocus={(e) =>
-                  (e.target.textContent =
-                    cells[virtualRow.index][virtualColumn.index]?.value)
-                  }
-                  class="absolute top-0 left-0 pl-1 border flex items-center overflow-auto whitespace-nowrap"
-                  style={{
-                    height: `${virtualRow.size}px`,
-                    width: `${virtualColumn.size}px`,
-                    transform: `translateX(${virtualColumn.start}px) translateY(${virtualRow.start}px)`,
-                  }}
-                >
-                  {renderCellValue(
-                    cells[virtualRow.index][virtualColumn.index]?.value
-                  )}
-                </div>
-              )}
-            </For>
+            <>
+              <div
+                class="absolute border h-6 top-6 left-0 w-10 flex justify-center items-center"
+                style={{
+                  height: `${virtualRow.size}px`,
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+              >
+                <span>{virtualRow.index + 1}</span>
+              </div>
+              <For each={columnVirtualizer.getVirtualItems()}>
+                {(virtualColumn) => (
+                  <>
+                    <div
+                      class="absolute border h-6 top-0 left-10 flex justify-center items-center"
+                      style={{
+                        width: `${virtualColumn.size}px`,
+                        transform: `translateX(${virtualColumn.start}px)`,
+                      }}
+                    >
+                      <span>{letters()[virtualColumn.index]}</span>
+                    </div>
+                    <div
+                      contenteditable
+                      onblur={(e) => {
+                        handleBlur(e, virtualRow.index, virtualColumn.index);
+                      }}
+                      onkeydown={(e) => handleEnter(e)}
+                      onfocus={(e) => {
+                        // if selectedCell starts with =, highlight next focused cells
+                        //
+                        // if (selectedCell().textContent.startsWith("=")) {
+                        //   e.currentTarget.style.border = "1px solid blue";
+                        // } else {
+                        //   setSelectedCell(e.currentTarget);
+                        //   e.target.textContent =
+                        //     cells[virtualRow.index][virtualColumn.index]?.value;
+                        // }
+                        e.target.textContent =
+                          cells[virtualRow.index][virtualColumn.index]?.value;
+                      }}
+                      class="absolute top-6 left-10 pl-1 border flex items-center overflow-auto whitespace-nowrap"
+                      style={{
+                        height: `${virtualRow.size}px`,
+                        width: `${virtualColumn.size}px`,
+                        transform: `translateX(${virtualColumn.start}px) translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      {renderCellValue(
+                        cells[virtualRow.index][virtualColumn.index]?.value
+                      )}
+                    </div>
+                  </>
+                )}
+              </For>
+            </>
           )}
         </For>
       </div>
