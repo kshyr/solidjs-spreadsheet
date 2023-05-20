@@ -1,4 +1,4 @@
-### SolidJS spreadsheet web app
+### [SolidJS spreadsheet web app](https://solidjs-spreadsheet.vercel.app)
 
 My goal right now would be to render virtualized grid and add basic functions (arithmetic formulas, cell formatting, etc.)
 to ultimately produce similar to Excel's workflow feel.
