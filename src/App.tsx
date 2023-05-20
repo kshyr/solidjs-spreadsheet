@@ -84,13 +84,24 @@ const Grid: Component = () => {
     if (!value) return "";
     let renderValue: string;
 
-    if (value.startsWith("=")) {
-      const cellId = value.split("=")[1];
-      const row = parseInt(cellId.charAt(1)) - 1;
-      const col = parseInt(
-        (cellId.toLowerCase().charCodeAt(0) - 97).toString()
-      );
-      renderValue = cells[row][col].value;
+    if (value.startsWith("=") && value.trim().length > 2) {
+      let referencing = true;
+      let referencedValue = value;
+
+      while (referencing) {
+        const cellId = referencedValue.split("=")[1];
+        const row = parseInt(cellId.charAt(1)) - 1;
+        const col = parseInt(
+          (cellId.toLowerCase().charCodeAt(0) - 97).toString()
+        );
+
+        renderValue = cells[row][col].value;
+        if (!renderValue.startsWith("=")) {
+          referencing = false;
+        } else {
+          referencedValue = renderValue;
+        }
+      }
     } else {
       renderValue = value;
     }

@@ -11,5 +11,6 @@ to ultimately produce similar to Excel's workflow feel.
 - [x] set/get cells
 - [x] add base for formulas (`=` to assign value of another cell - `=A1`)
 - [x] reactive `=`
+- [x] track references down to values
 - [ ] display columns and rows indexes, duh
 - [ ] very basic import/export
